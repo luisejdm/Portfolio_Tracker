@@ -6,7 +6,7 @@ import { generateAccentPalette } from '@/lib/utils'
 
 export function CompositionChart() {
   const { data, isLoading } = useComposition()
-  const { theme, accentColor, pieUsesAccentPalette } = useUIStore()
+  const { theme, accentColor, pieUsesAccentPalette, displayCurrency } = useUIStore()
 
   if (isLoading) return <Skeleton className="h-72 rounded-xl" />
   if (!data || data.length === 0) {
@@ -36,8 +36,7 @@ export function CompositionChart() {
             hole: 0.45,
             labels: data.map(d => d.ticker),
             values: data.map(d => parseFloat(d.value)),
-            customdata: data.map(d => d.currency),
-            hovertemplate: '<b>%{label}</b><br>Value: %{value:,.2f} %{customdata}<br>%{percent}<extra></extra>',
+            hovertemplate: `<b>%{label}</b><br>Value: %{value:,.2f} ${displayCurrency}<br>Weight: %{percent}<extra></extra>`,
             textinfo: 'label+percent',
             textposition: 'outside',
             textfont: { color: fontColor, size: 11 },
