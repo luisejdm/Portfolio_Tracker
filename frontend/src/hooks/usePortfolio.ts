@@ -35,11 +35,12 @@ export function useComposition() {
   })
 }
 
-export function usePerformance() {
+export function usePerformance(tickerCurrency?: string) {
   const currency = useUIStore(s => s.displayCurrency)
+  const tc = tickerCurrency && tickerCurrency !== 'ALL' ? tickerCurrency : undefined
   return useQuery<PerformancePoint[]>({
-    queryKey: ['portfolio-performance', currency],
-    queryFn: () => api.get('/portfolio/performance', { params: { currency } }).then(r => r.data),
+    queryKey: ['portfolio-performance', currency, tc ?? 'ALL'],
+    queryFn: () => api.get('/portfolio/performance', { params: { currency, ...(tc && { ticker_currency: tc }) } }).then(r => r.data),
     staleTime: 1000 * 60 * 5,
   })
 }

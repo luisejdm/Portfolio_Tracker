@@ -4,9 +4,13 @@ import { useUIStore } from '@/store/uiStore'
 import { Skeleton } from '@/components/ui/skeleton'
 import { generateAccentPalette } from '@/lib/utils'
 
-export function CompositionChart() {
-  const { data, isLoading } = useComposition()
+export function CompositionChart({ currencyFilter }: { currencyFilter?: string }) {
+  const { data: rawData, isLoading } = useComposition()
   const { theme, accentColor, pieUsesAccentPalette, displayCurrency } = useUIStore()
+
+  const data = currencyFilter && currencyFilter !== 'ALL'
+    ? rawData?.filter(d => d.currency === currencyFilter)
+    : rawData
 
   if (isLoading) return <Skeleton className="h-72 rounded-xl" />
   if (!data || data.length === 0) {

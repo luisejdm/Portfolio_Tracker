@@ -12,6 +12,7 @@ interface Props {
   range: Range
   onRangeChange: (r: Range) => void
   height?: string
+  currencyFilter?: string
 }
 
 function filterByRange(points: { date: string; portfolio_value: string }[], range: Range) {
@@ -27,8 +28,8 @@ function filterByRange(points: { date: string; portfolio_value: string }[], rang
   return points.filter(p => new Date(p.date) >= cutoff)
 }
 
-export function PortfolioValueChart({ range, onRangeChange, height = '400px' }: Props) {
-  const { data, isLoading } = usePerformance()
+export function PortfolioValueChart({ range, onRangeChange, height = '400px', currencyFilter }: Props) {
+  const { data, isLoading } = usePerformance(currencyFilter)
   const { theme, accentColor, displayCurrency } = useUIStore()
 
   if (isLoading) return <Skeleton className="h-72 rounded-xl" />

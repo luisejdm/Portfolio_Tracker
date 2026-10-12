@@ -87,14 +87,16 @@ async def portfolio_composition(
 @router.get("/performance", response_model=list[PerformancePoint])
 async def portfolio_performance(
     currency: str = Query("MXN"),
+    ticker_currency: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
-    cache_key = currency.upper()
+    tc = ticker_currency.upper() if ticker_currency else None
+    cache_key = f"{currency.upper()}:{tc or 'ALL'}"
     if cache_key in _perf_cache:
         return _perf_cache[cache_key]
 
     rate = await _get_rate()
-    points = pc.build_performance(db, rate, currency.upper())
+    points = pc.build_performance(db, rate, currency.upper(), tc)
     _perf_cache[cache_key] = points
     return points
 

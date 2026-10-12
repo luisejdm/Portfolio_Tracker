@@ -294,7 +294,12 @@ def build_composition(positions: list[dict], exchange_rate: Decimal, display_cur
 # Performance & TWR
 # ---------------------------------------------------------------------------
 
-def build_performance(db: Session, exchange_rate: Decimal, display_currency: str) -> list[dict]:
+def build_performance(
+    db: Session,
+    exchange_rate: Decimal,
+    display_currency: str,
+    ticker_currency: str | None = None,
+) -> list[dict]:
     all_tx = db.query(Transaction).order_by(Transaction.date).all()
     if not all_tx:
         return []
@@ -312,7 +317,6 @@ def build_performance(db: Session, exchange_rate: Decimal, display_currency: str
         current += timedelta(days=1)
 
     def portfolio_value_on(d: date) -> Decimal:
-        # Market value of open positions on date d
         value = Decimal("0")
         holdings: dict[str, Decimal] = defaultdict(Decimal)
         for tx in all_tx:
@@ -326,24 +330,27 @@ def build_performance(db: Session, exchange_rate: Decimal, display_currency: str
         for ticker, shares in holdings.items():
             if shares <= 0:
                 continue
+            currency = _detect_currency(ticker)
+            if ticker_currency and currency != ticker_currency:
+                continue
             prices = price_map.get(ticker, {})
             price = _last_known_price(prices, d)
             if price is None:
                 continue
             native_value = shares * price
-            currency = _detect_currency(ticker)
             if display_currency == "USD" and currency == "MXN":
                 native_value /= exchange_rate
             elif display_currency == "MXN" and currency == "USD":
                 native_value *= exchange_rate
             value += native_value
 
-        # Add uninvested cash (sell proceeds not yet redeployed into new buys)
-        cash_mxn, _ = _compute_cash_flows(all_tx, exchange_rate, up_to_date=d)
-        if display_currency == "USD":
-            value += cash_mxn / exchange_rate
-        else:
-            value += cash_mxn
+        # Only include cash when showing the full portfolio (no currency filter)
+        if not ticker_currency:
+            cash_mxn, _ = _compute_cash_flows(all_tx, exchange_rate, up_to_date=d)
+            if display_currency == "USD":
+                value += cash_mxn / exchange_rate
+            else:
+                value += cash_mxn
 
         return value
 

@@ -74,8 +74,8 @@ export function Dashboard() {
       <KPICards />
 
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4">
-        <CompositionChart />
-        <PortfolioValueChart range={range} onRangeChange={setRange} height="340px" />
+        <CompositionChart currencyFilter={filter} />
+        <PortfolioValueChart range={range} onRangeChange={setRange} height="340px" currencyFilter={filter} />
       </div>
 
       <div>
