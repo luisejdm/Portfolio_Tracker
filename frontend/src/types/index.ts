@@ -94,6 +94,11 @@ export interface ExchangeRateOut {
   source: string
 }
 
+export interface PortfolioInfo {
+  portfolios: string[]
+  active: string
+}
+
 export interface AnalystRecommendation {
   period: string
   strongBuy: number

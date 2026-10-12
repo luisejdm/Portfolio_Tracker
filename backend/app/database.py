@@ -1,21 +1,31 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-import os
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_URL = f"sqlite:///{BASE_DIR}/portfolio.db"
-
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from app.services import portfolio_manager
 
 
 class Base(DeclarativeBase):
     pass
 
 
+def get_engine(portfolio_name: str):
+    db_path = portfolio_manager.get_db_path(portfolio_name)
+    return create_engine(
+        f"sqlite:///{db_path}",
+        connect_args={"check_same_thread": False},
+    )
+
+
+def init_db(portfolio_name: str):
+    engine = get_engine(portfolio_name)
+    Base.metadata.create_all(bind=engine)
+    return engine
+
+
 def get_db():
-    db = SessionLocal()
+    active = portfolio_manager.get_active()
+    engine = get_engine(active)
+    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)()
     try:
-        yield db
+        yield session
     finally:
-        db.close()
+        session.close()
