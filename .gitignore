@@ -1,0 +1,38 @@
+# Environment variables — never commit secrets
+backend/.env
+frontend/.env
+
+# Database
+backend/portfolio.db
+backend/portfolio.db-shm
+backend/portfolio.db-wal
+
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+.eggs/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Alembic — keep migrations, ignore auto-generated cache
+backend/alembic/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
+
+# IDEs
+.vscode/
+.idea/
+*.swp

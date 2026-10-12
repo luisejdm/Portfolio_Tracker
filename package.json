@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-tracker",
+  "private": true,
+  "scripts": {
+    "dev": "npm run kill-ports && concurrently --names backend,frontend --prefix-colors cyan,magenta \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "kill-ports": "lsof -ti:8000,5173 | xargs kill -9 2>/dev/null; true"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
