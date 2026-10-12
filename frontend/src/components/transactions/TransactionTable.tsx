@@ -67,7 +67,7 @@ export function TransactionTable({ onEdit }: Props) {
                   <td className="px-4 py-3 text-muted">{formatDate(tx.date)}</td>
                   <td className="px-4 py-3 font-medium text-primary">{tx.ticker}</td>
                   <td className="px-4 py-3">
-                    <Badge variant={tx.type}>{tx.type}</Badge>
+                    <Badge variant={tx.type}>{tx.type === 'buy' ? 'Buy' : 'Sell'}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right text-primary">{shares.toFixed(4)}</td>
                   <td className="px-4 py-3 text-right text-muted">{fmtAmt(price, tx.currency)}</td>
