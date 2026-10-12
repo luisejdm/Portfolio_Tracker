@@ -26,6 +26,15 @@ export function useSwitchPortfolio() {
   })
 }
 
+export function useRenamePortfolio() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ name, newName }: { name: string; newName: string }) =>
+      api.patch(`/portfolios/${name}`, { new_name: newName }).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries(),
+  })
+}
+
 export function useDeletePortfolio() {
   const qc = useQueryClient()
   return useMutation({

@@ -14,6 +14,10 @@ class PortfolioSwitch(BaseModel):
     name: str
 
 
+class PortfolioRename(BaseModel):
+    new_name: str
+
+
 @router.get("/api/portfolios")
 def list_portfolios():
     return {
@@ -39,6 +43,19 @@ def switch_portfolio(body: PortfolioSwitch):
         raise HTTPException(404, f"Portfolio '{body.name}' not found")
     portfolio_manager.set_active(body.name)
     return {"active": body.name}
+
+
+@router.patch("/api/portfolios/{name}")
+def rename_portfolio(name: str, body: PortfolioRename):
+    new_name = body.new_name.strip()
+    if not portfolio_manager.is_valid_name(new_name):
+        raise HTTPException(400, "Name must be 1-40 characters: letters, numbers, hyphens, underscores only")
+    if not portfolio_manager.portfolio_exists(name):
+        raise HTTPException(404, f"Portfolio '{name}' not found")
+    if portfolio_manager.portfolio_exists(new_name):
+        raise HTTPException(409, f"Portfolio '{new_name}' already exists")
+    portfolio_manager.rename_portfolio(name, new_name)
+    return {"name": new_name}
 
 
 @router.delete("/api/portfolios/{name}")

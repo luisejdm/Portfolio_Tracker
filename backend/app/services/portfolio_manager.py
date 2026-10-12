@@ -47,3 +47,9 @@ def delete_portfolio(name: str):
     path = get_db_path(name)
     if path.exists():
         path.unlink()
+
+
+def rename_portfolio(old_name: str, new_name: str):
+    get_db_path(old_name).rename(get_db_path(new_name))
+    if get_active() == old_name:
+        set_active(new_name)

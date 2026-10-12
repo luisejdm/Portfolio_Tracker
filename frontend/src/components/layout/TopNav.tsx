@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Settings, ChevronDown, Check, Plus, Trash2 } from 'lucide-react'
+import { Settings, ChevronDown, Check, Plus, Trash2, Pencil } from 'lucide-react'
 import { useUIStore } from '@/store/uiStore'
-import { usePortfolios, useCreatePortfolio, useSwitchPortfolio, useDeletePortfolio } from '@/hooks/usePortfolios'
+import { usePortfolios, useCreatePortfolio, useSwitchPortfolio, useDeletePortfolio, useRenamePortfolio } from '@/hooks/usePortfolios'
 import { cn } from '@/lib/utils'
 
 interface TopNavProps {
@@ -21,11 +21,15 @@ function PortfolioSelector() {
   const createPortfolio = useCreatePortfolio()
   const switchPortfolio = useSwitchPortfolio()
   const deletePortfolio = useDeletePortfolio()
+  const renamePortfolio = useRenamePortfolio()
 
   const [open, setOpen] = useState(false)
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
   const [error, setError] = useState('')
+  const [editing, setEditing] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editError, setEditError] = useState('')
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,6 +39,9 @@ function PortfolioSelector() {
         setCreating(false)
         setNewName('')
         setError('')
+        setEditing(null)
+        setEditName('')
+        setEditError('')
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -70,6 +77,30 @@ function PortfolioSelector() {
     }
   }
 
+  function startEditing(name: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    setEditing(name)
+    setEditName(name)
+    setEditError('')
+  }
+
+  async function handleRename(oldName: string) {
+    const newName = editName.trim()
+    if (!newName || newName === oldName) { setEditing(null); return }
+    if (!/^[a-zA-Z0-9_-]{1,40}$/.test(newName)) {
+      setEditError('Letters, numbers, - and _ only')
+      return
+    }
+    try {
+      await renamePortfolio.mutateAsync({ name: oldName, newName })
+      setEditing(null)
+      setEditName('')
+      setEditError('')
+    } catch {
+      setEditError('Name already exists')
+    }
+  }
+
   async function handleDelete(name: string, e: React.MouseEvent) {
     e.stopPropagation()
     if (portfolios.length <= 1) return
@@ -90,27 +121,69 @@ function PortfolioSelector() {
         <div className="absolute left-0 top-full mt-1 w-52 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="py-1">
             {portfolios.map(name => (
-              <div
-                key={name}
-                onClick={() => handleSwitch(name)}
-                className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-border/30 transition-colors group"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  {name === active
-                    ? <Check size={13} style={{ color: accentColor }} className="shrink-0" />
-                    : <span className="w-[13px] shrink-0" />
-                  }
-                  <span className={cn('truncate', name === active ? 'font-medium text-primary' : 'text-muted')}>
-                    {name}
-                  </span>
-                </div>
-                {portfolios.length > 1 && name !== active && (
-                  <button
-                    onClick={e => handleDelete(name, e)}
-                    className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-all"
+              <div key={name} className="group">
+                {editing === name ? (
+                  <div className="px-3 py-2 space-y-1">
+                    <input
+                      autoFocus
+                      className="w-full bg-bg border border-border rounded-md px-2 py-1 text-xs text-primary focus:outline-none focus:border-accent"
+                      value={editName}
+                      onChange={e => { setEditName(e.target.value); setEditError('') }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') { e.stopPropagation(); handleRename(name) }
+                        if (e.key === 'Escape') { setEditing(null); setEditName(''); setEditError('') }
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    />
+                    {editError && <p className="text-xs text-red-500">{editError}</p>}
+                    <div className="flex gap-1">
+                      <button
+                        onClick={e => { e.stopPropagation(); handleRename(name) }}
+                        disabled={renamePortfolio.isPending}
+                        className="flex-1 py-1 text-xs font-medium text-white rounded-md transition-opacity disabled:opacity-60"
+                        style={{ backgroundColor: accentColor }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); setEditing(null); setEditName(''); setEditError('') }}
+                        className="px-2 py-1 text-xs text-muted hover:text-primary rounded-md transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => handleSwitch(name)}
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-border/30 transition-colors"
                   >
-                    <Trash2 size={12} />
-                  </button>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {name === active
+                        ? <Check size={13} style={{ color: accentColor }} className="shrink-0" />
+                        : <span className="w-[13px] shrink-0" />
+                      }
+                      <span className={cn('truncate', name === active ? 'font-medium text-primary' : 'text-muted')}>
+                        {name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <button
+                        onClick={e => startEditing(name, e)}
+                        className="text-muted hover:text-primary transition-colors"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                      {portfolios.length > 1 && name !== active && (
+                        <button
+                          onClick={e => handleDelete(name, e)}
+                          className="text-muted hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
