@@ -91,6 +91,10 @@ VITE_LOGO_DEV_TOKEN=pk_your_token_here
 
 Each transaction supports a commission percentage that is factored into the cost basis and P&L calculations automatically.
 
+## Limitations
+
+- **Long positions only** — short selling is not supported. All positions are assumed to be long (buy to open, sell to close).
+
 ## License
 
 MIT
