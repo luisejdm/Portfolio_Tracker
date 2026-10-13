@@ -110,7 +110,7 @@ VITE_LOGO_DEV_TOKEN=pk_your_token_here
 ### Log your first transaction
 
 Go to **Transactions** and click **Add Transaction**. Fill in:
-- **Ticker** — e.g. `AAPL` for NYSE/NASDAQ or `AMXL.MX` for BMV. Currency is auto-detected from the `.MX` suffix.
+- **Ticker** — e.g. `AAPL` for NYSE/NASDAQ or `BIMBOA.MX` for BMV. Currency is auto-detected from the `.MX` suffix.
 - **Type** — Buy or Sell.
 - **Date**, **Shares**, **Price per Share**, and **Commission %** (default 0.25%).
 
