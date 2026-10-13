@@ -78,6 +78,44 @@ def get_current_price(ticker: str, db: Session) -> tuple[Decimal, bool]:
         raise
 
 
+def get_price_and_day_change(ticker: str, db: Session) -> tuple[Decimal, bool, Decimal | None, Decimal | None]:
+    """Returns (price, is_stale, day_change_abs, day_change_pct).
+
+    Always fetches ticker.info so that currentPrice and previousClose
+    are consistent with broker data. Cache is used only as fallback.
+    """
+    cached = (
+        db.query(PriceCache)
+        .filter(PriceCache.ticker == ticker.upper())
+        .order_by(PriceCache.fetched_at.desc())
+        .first()
+    )
+
+    try:
+        info = yf.Ticker(ticker).info
+        precio = info.get("currentPrice") or info.get("regularMarketPrice")
+        cierre_anterior = info.get("previousClose")
+
+        if precio is None:
+            raise ValueError("No price in info")
+
+        price = Decimal(str(precio))
+        _upsert_price_cache(db, ticker.upper(), date.today(), price)
+
+        change = pct = None
+        if cierre_anterior:
+            prev = Decimal(str(cierre_anterior))
+            change = price - prev
+            pct = change / prev * 100
+
+        return price, False, change, pct
+
+    except Exception:
+        if cached:
+            return Decimal(str(cached.close_price)), True, None, None
+        raise
+
+
 def get_historical(ticker: str, range_key: str = "1y") -> pd.DataFrame:
     params = RANGE_MAP.get(range_key, {"period": "1y"})
     hist = yf.Ticker(ticker).history(**params)

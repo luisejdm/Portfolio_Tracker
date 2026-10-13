@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from collections import defaultdict
 from sqlalchemy.orm import Session
 from app.models.models import Transaction
-from app.services.market_data import get_current_price, get_historical_prices_for_tickers
+from app.services.market_data import get_price_and_day_change, get_historical_prices_for_tickers
 
 RISK_FREE_RATE = Decimal("0.04")
 TWO_PLACES = Decimal("0.01")
@@ -137,7 +137,7 @@ def build_positions(db: Session, exchange_rate: Decimal) -> list[dict]:
         currency = _detect_currency(ticker)
 
         try:
-            market_price, stale = get_current_price(ticker, db)
+            market_price, stale, day_change, day_change_pct = get_price_and_day_change(ticker, db)
             current_value = shares_held * market_price
             unrealized_pnl = current_value - invested
             unrealized_pnl_pct = (unrealized_pnl / invested * 100) if invested else Decimal("0")
@@ -147,6 +147,8 @@ def build_positions(db: Session, exchange_rate: Decimal) -> list[dict]:
             unrealized_pnl = None
             unrealized_pnl_pct = None
             stale = False
+            day_change = None
+            day_change_pct = None
 
         positions.append({
             "ticker": ticker,
@@ -159,6 +161,8 @@ def build_positions(db: Session, exchange_rate: Decimal) -> list[dict]:
             "unrealized_pnl": unrealized_pnl,
             "unrealized_pnl_pct": unrealized_pnl_pct,
             "portfolio_pct": None,  # filled after totalling
+            "day_change": day_change,
+            "day_change_pct": day_change_pct,
             "price_stale": stale,
             "realized_pnl": _compute_realized_pnl(txs),
             "is_cash": False,
@@ -178,6 +182,8 @@ def build_positions(db: Session, exchange_rate: Decimal) -> list[dict]:
             "unrealized_pnl": Decimal("0"),
             "unrealized_pnl_pct": Decimal("0"),
             "portfolio_pct": None,
+            "day_change": None,
+            "day_change_pct": None,
             "price_stale": False,
             "realized_pnl": Decimal("0"),
             "is_cash": True,

@@ -45,6 +45,7 @@ export function PositionsTable({ currencyFilter }: Props) {
               <th className="text-right px-4 py-3 font-medium">Market Price</th>
               <th className="text-right px-4 py-3 font-medium">Current Value</th>
               <th className="text-right px-4 py-3 font-medium">Unrealized P&L</th>
+              <th className="text-right px-4 py-3 font-medium">Day Change</th>
               <th className="text-right px-4 py-3 font-medium">Portfolio %</th>
             </tr>
           </thead>
@@ -74,6 +75,16 @@ export function PositionsTable({ currencyFilter }: Props) {
                     <>
                       <div className={pnlColor(p.unrealized_pnl)}>{fmtAmt(p.unrealized_pnl, currency)}</div>
                       <div className={`text-xs ${pnlColor(p.unrealized_pnl_pct)}`}>{formatPct(p.unrealized_pnl_pct)}</div>
+                    </>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  {p.is_cash || !p.day_change ? (
+                    <div className="text-muted">—</div>
+                  ) : (
+                    <>
+                      <div className={pnlColor(p.day_change)}>{fmtAmt(p.day_change, p.currency)}</div>
+                      <div className={`text-xs ${pnlColor(p.day_change_pct)}`}>{formatPct(p.day_change_pct)}</div>
                     </>
                   )}
                 </td>

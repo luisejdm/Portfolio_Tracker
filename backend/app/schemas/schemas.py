@@ -66,6 +66,8 @@ class PositionOut(BaseModel):
     unrealized_pnl: Optional[Decimal]
     unrealized_pnl_pct: Optional[Decimal]
     portfolio_pct: Optional[Decimal]
+    day_change: Optional[Decimal]
+    day_change_pct: Optional[Decimal]
     price_stale: bool = False
     is_cash: bool = False
 

@@ -68,6 +68,8 @@ async def portfolio_positions(
             unrealized_pnl=to_display(p["unrealized_pnl"], cur),
             unrealized_pnl_pct=p["unrealized_pnl_pct"],
             portfolio_pct=p["portfolio_pct"],
+            day_change=to_display(p.get("day_change"), cur),
+            day_change_pct=p.get("day_change_pct"),
             price_stale=p["price_stale"],
             is_cash=p.get("is_cash", False),
         ))

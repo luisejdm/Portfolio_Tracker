@@ -35,6 +35,8 @@ export interface Position {
   unrealized_pnl: string | null
   unrealized_pnl_pct: string | null
   portfolio_pct: string | null
+  day_change: string | null
+  day_change_pct: string | null
   price_stale: boolean
   is_cash?: boolean
 }
