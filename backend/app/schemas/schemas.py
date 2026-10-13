@@ -98,14 +98,6 @@ class PerformancePoint(BaseModel):
     twr: Optional[Decimal] = None
 
 
-class RiskMetrics(BaseModel):
-    annualized_volatility: Optional[Decimal]
-    max_drawdown: Optional[Decimal]
-    sharpe_ratio: Optional[Decimal]
-    best_day: Optional[Decimal]
-    worst_day: Optional[Decimal]
-
-
 # --- Market Data ---
 
 class PriceOut(BaseModel):

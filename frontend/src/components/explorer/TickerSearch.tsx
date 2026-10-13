@@ -22,7 +22,7 @@ export function TickerSearch({ onSearch }: Props) {
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           className="w-full bg-surface border border-border rounded-md pl-8 pr-3 py-2 text-sm text-primary focus:outline-none focus:border-accent transition-colors"
-          placeholder="AAPL, AMXL.MX…"
+          placeholder="AAPL, BIMBOA.MX…"
           value={value}
           onChange={e => setValue(e.target.value)}
         />

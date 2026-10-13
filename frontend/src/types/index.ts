@@ -67,14 +67,6 @@ export interface PerformancePoint {
   twr: string | null
 }
 
-export interface RiskMetrics {
-  annualized_volatility: string | null
-  max_drawdown: string | null
-  sharpe_ratio: string | null
-  best_day: string | null
-  worst_day: string | null
-}
-
 export interface PriceOut {
   ticker: string
   price: string

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useUIStore } from '@/store/uiStore'
-import type { PortfolioSummary, Position, CompositionItem, PerformancePoint, RiskMetrics, ExchangeRateOut } from '@/types'
+import type { PortfolioSummary, Position, CompositionItem, PerformancePoint, ExchangeRateOut } from '@/types'
 
 export function useExchangeRate() {
   return useQuery<ExchangeRateOut>({
@@ -45,11 +45,3 @@ export function usePerformance(tickerCurrency?: string) {
   })
 }
 
-export function useRiskMetrics() {
-  const currency = useUIStore(s => s.displayCurrency)
-  return useQuery<RiskMetrics>({
-    queryKey: ['portfolio-risk', currency],
-    queryFn: () => api.get('/portfolio/risk-metrics', { params: { currency } }).then(r => r.data),
-    staleTime: 1000 * 60 * 5,
-  })
-}

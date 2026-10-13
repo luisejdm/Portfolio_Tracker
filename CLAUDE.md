@@ -16,8 +16,8 @@ A local, single-user investment portfolio dashboard for tracking stock and ETF p
 | Charts | react-plotly.js (ALL plots must use Plotly — no exceptions) |
 | Market Data | yfinance (free, ~15 min delay) |
 | Exchange Rate | Banxico SIE REST API (free, requires token in .env) |
-| State | TanStack Query (server state) + Zustand (UI state: theme, currency) |
-| Routing | React Router v6 |
+| State | TanStack Query v5 (server state) + Zustand v5 (UI state: theme, currency) |
+| Routing | React Router v7 |
 
 ---
 
@@ -59,11 +59,8 @@ portfolio-tracker/
     │   │   ├── dashboard/
     │   │   │   ├── KPICards.tsx
     │   │   │   ├── CompositionChart.tsx
-    │   │   │   └── PositionsTable.tsx
-    │   │   ├── performance/
-    │   │   │   ├── PortfolioValueChart.tsx
-    │   │   │   ├── TWRChart.tsx
-    │   │   │   └── RiskMetricsCards.tsx
+    │   │   │   ├── PositionsTable.tsx
+    │   │   │   └── PortfolioValueChart.tsx
     │   │   ├── transactions/
     │   │   │   ├── TransactionTable.tsx
     │   │   │   └── TransactionForm.tsx
@@ -72,7 +69,6 @@ portfolio-tracker/
     │   │       └── PriceHistoryChart.tsx
     │   ├── pages/
     │   │   ├── Dashboard.tsx
-    │   │   ├── Performance.tsx
     │   │   ├── Transactions.tsx
     │   │   └── Explorer.tsx
     │   ├── hooks/
@@ -99,7 +95,7 @@ portfolio-tracker/
 ### `transactions`
 ```
 id              INTEGER PRIMARY KEY AUTOINCREMENT
-ticker          VARCHAR NOT NULL          -- e.g. "AAPL", "AMXL.MX"
+ticker          VARCHAR NOT NULL          -- e.g. "AAPL", "BIMBOA.MX"
 type            VARCHAR NOT NULL          -- "buy" | "sell"
 date            DATE NOT NULL
 shares          DECIMAL(18,8) NOT NULL    -- supports fractional shares
@@ -165,8 +161,7 @@ DELETE /api/transactions/{id}         → delete transaction
 GET /api/portfolio/summary            → KPI cards data
 GET /api/portfolio/positions          → positions table data
 GET /api/portfolio/composition        → pie chart data (ticker, value, pct)
-GET /api/portfolio/performance        → time-series for Performance page
-GET /api/portfolio/risk-metrics       → volatility, max drawdown, sharpe, TWR
+GET /api/portfolio/performance        → time-series for portfolio value chart (Dashboard)
 ```
 
 ### Market Data — `/api/market`
@@ -223,27 +218,6 @@ realized_pnl_i = (net_sell_price - weighted_avg_cost_at_time_of_sell) × shares_
 - `total_pnl` = unrealized + realized
 - `total_return_pct` = total_pnl / total_invested × 100
 
-### Time-Weighted Return (TWR)
-Used in the Performance page to measure portfolio return independent of cash flows (contributions/withdrawals do not inflate/deflate the metric).
-
-Algorithm:
-1. Collect all transaction dates as sub-period boundaries
-2. For each sub-period [t_i, t_{i+1}]:
-   - `value_start` = portfolio value at start of sub-period (using historical prices from yfinance)
-   - `value_end` = portfolio value at end of sub-period (before applying next cash flow)
-   - `sub_period_return = value_end / value_start - 1`
-3. `TWR = Π(1 + sub_period_return_i) - 1`
-
-Fetch historical daily close prices from yfinance for all tickers to compute this. Cache results in `price_cache`.
-
-### Risk Metrics (Performance Page)
-Compute from the daily portfolio value time-series:
-- **Annualized Volatility**: `std(daily_returns) × sqrt(252)`
-- **Max Drawdown**: `max((peak - trough) / peak)` over all rolling windows
-- **Sharpe Ratio**: `(annualized_return - risk_free_rate) / annualized_volatility`
-  - Use `risk_free_rate = 0.04` (4% annual, approximate CETES rate — hardcoded constant)
-- **Best / Worst single day**: max and min daily return
-
 ---
 
 ## Feature Specifications by Page
@@ -280,25 +254,13 @@ Compute from the daily portfolio value time-series:
 - Currency toggle (MXN | USD) at the top affects all monetary values
 - Filter buttons: All | MXN | USD to filter positions by currency
 
-### 2. Performance (`/performance`)
-
-**Portfolio Value Chart:**
+**Portfolio Value Chart (Dashboard):**
 - Plotly line chart: x = date, y = total portfolio value (in display currency)
 - Time range selector: 1M | 3M | 6M | YTD | 1Y | 2Y | MAX
+- Rendered alongside the composition chart on the Dashboard
 - Computed from transaction history + historical prices via yfinance
 
-**TWR Chart:**
-- Plotly line chart: x = date, y = cumulative TWR (%)
-- Same time range selector as above
-- Annotations at major cash flow events (contributions/withdrawals)
-
-**Risk Metrics Cards:**
-- Annualized Volatility
-- Max Drawdown
-- Sharpe Ratio
-- Best Day / Worst Day
-
-### 3. Transactions (`/transactions`)
+### 2. Transactions (`/transactions`)
 
 **Transaction History Table:**
 
@@ -329,9 +291,9 @@ Compute from the daily portfolio value time-series:
   6. Commission % (number, default 0.25)
 - On submit: POST to `/api/transactions`
 
-### 4. Explorer (`/explorer`)
+### 3. Explorer (`/explorer`)
 
-- Search input for ticker (e.g. `AAPL`, `AMXL.MX`)
+- Search input for ticker (e.g. `AAPL`, `BIMBOA.MX`)
 - On search: fetch historical data via `/api/market/history/{ticker}?range=1y`
 - **Plotly chart** — toggle between:
   - Line chart (close price)
@@ -340,7 +302,7 @@ Compute from the daily portfolio value time-series:
 - Chart is interactive: zoom, pan, hover tooltips
 - Show ticker name and current price above chart
 
-### 5. Settings Panel (slide-out or modal, triggered by gear icon in top-right corner)
+### 4. Settings Panel (slide-out or modal, triggered by gear icon in top-right corner)
 
 - **Theme**: Toggle Dark / Light mode
 - **Accent Color**: Color picker with preset swatches + custom hex input (default `#4F89FF`)
@@ -409,7 +371,7 @@ hist = ticker.history(period="1y")       # or period="max", "5y", etc.
 hist = ticker.history(start="2023-01-01", end="2024-01-01")
 # Returns DataFrame with columns: Open, High, Low, Close, Volume
 ```
-- BMV tickers use `.MX` suffix: `AMXL.MX`, `WALMEX.MX`, `FUNO11.MX`
+- BMV tickers use `.MX` suffix: `BIMBOA.MX`, `WALMEX.MX`, `FUNO11.MX`
 - Rate limit: do not hammer the API; cache results in `price_cache` table
 
 ### Banxico SIE API
@@ -480,7 +442,7 @@ Backend must allow `http://localhost:5173` in FastAPI CORS middleware.
 
 7. **Price cache strategy**: on `/api/market/refresh`, fetch prices for all currently held tickers, store in `price_cache`. On page load, the frontend calls this endpoint once. Stale cache threshold: if `fetched_at` is older than 30 minutes, treat as stale.
 
-8. **TWR computation is expensive**: compute lazily only when the Performance page is requested, and cache the result in memory (FastAPI lifespan cache) invalidated on any transaction mutation.
+8. **Performance chart computation is expensive**: compute lazily only when requested, and cache the result in memory (FastAPI lifespan cache) invalidated on any transaction mutation.
 
 9. **Extensibility hooks** (do not implement, just architect for them):
    - `dividends` table already exists in schema

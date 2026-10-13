@@ -1,18 +1,18 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from decimal import Decimal
 from app.database import get_db
 from app.models.models import Transaction
 from app.schemas.schemas import (
     PortfolioSummary, PositionOut, CompositionItem,
-    PerformancePoint, RiskMetrics,
+    PerformancePoint,
 )
 from app.services import portfolio_calculator as pc
 from app.services.banxico import get_exchange_rate
 
 router = APIRouter(prefix="/api/portfolio", tags=["portfolio"])
 
-# In-memory cache for expensive TWR computation (invalidated on tx mutation)
+# In-memory cache for performance data (invalidated on tx mutation)
 _perf_cache: dict = {}
 
 
@@ -101,17 +101,3 @@ async def portfolio_performance(
     points = pc.build_performance(db, rate, currency.upper(), tc)
     _perf_cache[cache_key] = points
     return points
-
-
-@router.get("/risk-metrics", response_model=RiskMetrics)
-async def risk_metrics(
-    currency: str = Query("MXN"),
-    db: Session = Depends(get_db),
-):
-    cache_key = currency.upper()
-    if cache_key not in _perf_cache:
-        rate = await _get_rate()
-        _perf_cache[cache_key] = pc.build_performance(db, rate, currency.upper())
-
-    metrics = pc.build_risk_metrics(_perf_cache[cache_key])
-    return RiskMetrics(**metrics)

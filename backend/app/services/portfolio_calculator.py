@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app.models.models import Transaction
 from app.services.market_data import get_price_and_day_change, get_historical_prices_for_tickers
 
-RISK_FREE_RATE = Decimal("0.04")
 TWO_PLACES = Decimal("0.01")
 
 
@@ -407,53 +406,3 @@ def _last_known_price(price_dict: dict[date, Decimal], target: date) -> Decimal 
     return None
 
 
-# ---------------------------------------------------------------------------
-# Risk metrics
-# ---------------------------------------------------------------------------
-
-def build_risk_metrics(performance_points: list[dict]) -> dict:
-    import math
-
-    values = [float(p["portfolio_value"]) for p in performance_points if p["portfolio_value"] > 0]
-    if len(values) < 3:
-        return {
-            "annualized_volatility": None,
-            "max_drawdown": None,
-            "sharpe_ratio": None,
-            "best_day": None,
-            "worst_day": None,
-        }
-
-    daily_returns = [(values[i] / values[i - 1]) - 1 for i in range(1, len(values))]
-
-    mean_return = sum(daily_returns) / len(daily_returns)
-    variance = sum((r - mean_return) ** 2 for r in daily_returns) / len(daily_returns)
-    std_dev = math.sqrt(variance)
-    annualized_vol = Decimal(str(std_dev * math.sqrt(252)))
-
-    annualized_return = Decimal(str((1 + mean_return) ** 252 - 1))
-    sharpe = (
-        (annualized_return - RISK_FREE_RATE) / annualized_vol
-        if annualized_vol > 0
-        else None
-    )
-
-    peak = values[0]
-    max_dd = 0.0
-    for v in values:
-        if v > peak:
-            peak = v
-        dd = (peak - v) / peak
-        if dd > max_dd:
-            max_dd = dd
-
-    best = max(daily_returns)
-    worst = min(daily_returns)
-
-    return {
-        "annualized_volatility": annualized_vol * 100,
-        "max_drawdown": Decimal(str(max_dd * 100)),
-        "sharpe_ratio": sharpe,
-        "best_day": Decimal(str(best * 100)),
-        "worst_day": Decimal(str(worst * 100)),
-    }

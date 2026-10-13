@@ -15,8 +15,7 @@
 
 ## Features
 
-- **Dashboard** — Portfolio value, contributed capital, unrealized/realized P&L, and total return KPIs. Donut composition chart and open positions table with weighted average cost basis.
-- **Performance** — Portfolio value over time, Time-Weighted Return (TWR) chart, and risk metrics (volatility, max drawdown, Sharpe ratio).
+- **Dashboard** — Portfolio value, contributed capital, unrealized/realized P&L, and total return KPIs. Donut composition chart, portfolio value over time chart, and open positions table with weighted average cost basis.
 - **Explorer** — Search any ticker to view interactive price history (line or candlestick), analyst targets & recommendations, fundamentals, and company info. Company logos powered by Logo.dev.
 - **Transactions** — Full transaction history with buy/sell tracking, commission support, and inline edit/delete.
 - **Settings** — Dark/light theme, accent color picker, pie chart color palette toggle, and global font size slider.
@@ -119,10 +118,6 @@ Submit and the position will appear immediately on the Dashboard.
 ### Dashboard
 
 The top row shows your portfolio KPIs: current value, contributed capital, unrealized P&L, realized P&L, and total return. Use the **MXN / USD toggle** at the top to switch the display currency — all values convert in real time using the live Banxico exchange rate. Use the **All / MXN / USD filter** to narrow the positions table by market. Hit **Refresh** to pull the latest prices from yfinance.
-
-### Performance
-
-Shows your portfolio value over time and a **Time-Weighted Return (TWR)** chart that strips out the distortion of deposits and withdrawals so you can measure pure investment performance. Use the time range buttons (1M · 3M · 6M · YTD · 1Y · 2Y · MAX) to zoom in or out. The cards below the charts show annualized volatility, max drawdown, Sharpe ratio, and your best/worst single day.
 
 ### Explorer
 
