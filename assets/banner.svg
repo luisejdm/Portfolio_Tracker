@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="1280" height="640" viewBox="0 0 1280 640" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<svg width="1280" height="300" viewBox="0 0 1280 300" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="fondoGlow" cx="50%" cy="50%" r="60%">
+    <radialGradient id="fondoGlow" cx="50%" cy="50%" r="70%">
       <stop offset="0" stop-color="#16203A"/>
       <stop offset="1" stop-color="#0E1320"/>
     </radialGradient>
   </defs>
-  <rect width="1280" height="640" fill="url(#fondoGlow)"/>
-  <g transform="translate(140.00 275.91) scale(0.13736)">
+  <rect width="1280" height="300" fill="url(#fondoGlow)"/>
+  <g transform="translate(190.00 110.32) scale(0.12363)">
   <defs>
     <!-- Mismo degradado en icono y texto: vertical, oscuro abajo y claro arriba.
          Se define uno por sistema de coordenadas (icono y texto tienen escalas distintas)
