@@ -105,6 +105,37 @@ BANXICO_TOKEN=your_token_here
 VITE_LOGO_DEV_TOKEN=pk_your_token_here
 ```
 
+## Usage
+
+### Log your first transaction
+
+Go to **Transactions** and click **Add Transaction**. Fill in:
+- **Ticker** — e.g. `AAPL` for NYSE/NASDAQ or `AMXL.MX` for BMV. Currency is auto-detected from the `.MX` suffix.
+- **Type** — Buy or Sell.
+- **Date**, **Shares**, **Price per Share**, and **Commission %** (default 0.25%).
+
+Submit and the position will appear immediately on the Dashboard.
+
+### Dashboard
+
+The top row shows your portfolio KPIs: current value, contributed capital, unrealized P&L, realized P&L, and total return. Use the **MXN / USD toggle** at the top to switch the display currency — all values convert in real time using the live Banxico exchange rate. Use the **All / MXN / USD filter** to narrow the positions table by market. Hit **Refresh** to pull the latest prices from yfinance.
+
+### Performance
+
+Shows your portfolio value over time and a **Time-Weighted Return (TWR)** chart that strips out the distortion of deposits and withdrawals so you can measure pure investment performance. Use the time range buttons (1M · 3M · 6M · YTD · 1Y · 2Y · MAX) to zoom in or out. The cards below the charts show annualized volatility, max drawdown, Sharpe ratio, and your best/worst single day.
+
+### Explorer
+
+Type any ticker in the search box and press Enter. Toggle between **Line** and **Candlestick** chart, pick a time range, and hover for exact OHLCV values. Scroll down for analyst price targets, buy/hold/sell recommendations, and key fundamentals (P/E, EPS, market cap, etc.).
+
+### Edit or delete a transaction
+
+In the Transactions table, click the **edit icon** on any row to update it in a pre-filled form, or the **trash icon** to delete it (a confirmation dialog appears before anything is removed).
+
+### Settings
+
+Click the **gear icon** (top-right) to open the settings panel. You can switch between dark and light mode, change the accent color using the swatches or a custom hex value, adjust the global font size, and pick a different color palette for the composition pie chart. All changes are instant and persist in `localStorage`.
+
 ## Currency Support
 
 - Tickers ending in `.MX` are treated as **MXN** (BMV)
