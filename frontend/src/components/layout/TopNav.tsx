@@ -4,8 +4,8 @@ import { Settings, ChevronDown, Check, Plus, Trash2, Pencil } from 'lucide-react
 import { useUIStore } from '@/store/uiStore'
 import { usePortfolios, useCreatePortfolio, useSwitchPortfolio, useDeletePortfolio, useRenamePortfolio } from '@/hooks/usePortfolios'
 import { cn } from '@/lib/utils'
-import logoClaro from '../../../logos/logo_claro.svg?url'
-import logoObscuro from '../../../logos/logo_obscuro.svg?url'
+import logoDark from '@/assets/logo-dark.svg?url'
+import logoLight from '@/assets/logo-light.svg?url'
 
 interface TopNavProps {
   onSettingsOpen: () => void
@@ -239,7 +239,7 @@ function PortfolioSelector() {
 export function TopNav({ onSettingsOpen }: TopNavProps) {
   const accentColor = useUIStore(s => s.accentColor)
   const theme = useUIStore(s => s.theme)
-  const logo = theme === 'dark' ? logoClaro : logoObscuro
+  const logo = theme === 'dark' ? logoDark : logoLight
 
   return (
     <header className="h-12 border-b border-border bg-surface flex items-center px-6 sticky top-0 z-40">
