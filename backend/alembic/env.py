@@ -9,7 +9,8 @@ from alembic import context
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.database import Base, DATABASE_URL
+from app.database import Base
+from app.services import portfolio_manager
 import app.models.models  # noqa: F401 — registers all models
 
 config = context.config
@@ -17,7 +18,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+# Migrations target the active portfolio's database.
+# Override with `alembic -x portfolio=<name> upgrade head`.
+_portfolio = context.get_x_argument(as_dictionary=True).get(
+    "portfolio", portfolio_manager.get_active()
+)
+config.set_main_option(
+    "sqlalchemy.url", f"sqlite:///{portfolio_manager.get_db_path(_portfolio)}"
+)
 
 target_metadata = Base.metadata
 

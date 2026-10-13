@@ -180,12 +180,14 @@ def get_historical_prices_for_tickers(
             )
             currency = _currency_for(ticker)
             for ts, row in hist.iterrows():
-                d = ts.date()
                 price = Decimal(str(row["Close"]))
+                if not price.is_finite():
+                    continue  # yfinance returns NaN for some days (holidays, gaps)
+                d = ts.date()
                 cached_map[d] = price
                 _upsert_price_cache(db, ticker, d, price)
         except Exception:
-            pass
+            db.rollback()
 
         result[ticker] = cached_map
 
