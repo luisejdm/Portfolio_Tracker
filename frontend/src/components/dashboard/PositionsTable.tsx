@@ -83,7 +83,7 @@ export function PositionsTable({ currencyFilter }: Props) {
                     <div className="text-muted">—</div>
                   ) : (
                     <>
-                      <div className={pnlColor(p.day_change)}>{fmtAmt(p.day_change, p.currency)}</div>
+                      <div className={pnlColor(p.day_change)}>{fmtAmt(p.day_change, currency)}</div>
                       <div className={`text-xs ${pnlColor(p.day_change_pct)}`}>{formatPct(p.day_change_pct)}</div>
                     </>
                   )}
