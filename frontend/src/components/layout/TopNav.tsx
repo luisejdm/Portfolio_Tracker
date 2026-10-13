@@ -4,6 +4,8 @@ import { Settings, ChevronDown, Check, Plus, Trash2, Pencil } from 'lucide-react
 import { useUIStore } from '@/store/uiStore'
 import { usePortfolios, useCreatePortfolio, useSwitchPortfolio, useDeletePortfolio, useRenamePortfolio } from '@/hooks/usePortfolios'
 import { cn } from '@/lib/utils'
+import logoClaro from '../../../logos/logo_claro.svg?url'
+import logoObscuro from '../../../logos/logo_obscuro.svg?url'
 
 interface TopNavProps {
   onSettingsOpen: () => void
@@ -118,7 +120,7 @@ function PortfolioSelector() {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-1 w-52 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1 w-52 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="py-1">
             {portfolios.map(name => (
               <div key={name} className="group">
@@ -236,15 +238,16 @@ function PortfolioSelector() {
 
 export function TopNav({ onSettingsOpen }: TopNavProps) {
   const accentColor = useUIStore(s => s.accentColor)
+  const theme = useUIStore(s => s.theme)
+  const logo = theme === 'dark' ? logoClaro : logoObscuro
 
   return (
     <header className="h-12 border-b border-border bg-surface flex items-center px-6 sticky top-0 z-40">
-      <div className="flex items-center gap-2 mr-8 shrink-0">
-        <span className="font-semibold text-sm text-primary">Portfolio Tracker</span>
-        <PortfolioSelector />
+      <div className="shrink-0">
+        <img src={logo} alt="Portfolio Tracker" className="h-5 w-auto" />
       </div>
 
-      <nav className="flex items-center gap-1 flex-1 justify-center">
+      <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
         {links.map(({ to, label }) => (
           <NavLink
             key={to}
@@ -263,13 +266,16 @@ export function TopNav({ onSettingsOpen }: TopNavProps) {
         ))}
       </nav>
 
-      <button
-        onClick={onSettingsOpen}
-        className="ml-8 text-muted hover:text-primary transition-colors"
-        aria-label="Settings"
-      >
-        <Settings size={18} />
-      </button>
+      <div className="ml-auto flex items-center gap-2">
+        <PortfolioSelector />
+        <button
+          onClick={onSettingsOpen}
+          className="text-muted hover:text-primary transition-colors"
+          aria-label="Settings"
+        >
+          <Settings size={18} />
+        </button>
+      </div>
     </header>
   )
 }
