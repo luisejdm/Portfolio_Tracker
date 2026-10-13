@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="Portfolio Tracker" width="600"/>
+  <img src="assets/banner.svg" alt="Portfolio Tracker" width="100%"/>
 
   <p>A self-hosted investment portfolio dashboard for the Mexican (BMV) and American (NYSE/NASDAQ) markets.</p>
 
